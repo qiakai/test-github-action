@@ -12,11 +12,9 @@ jobs:
       - name: main
         run: |
           echo "1111: [${-}]"
+
+      - name: x-cmd
+        uses: x-cmd/action@main
         with:
           code: |
             echo "2222: [${-}]"
-
-      # - name: x-cmd
-      #   uses: x-cmd/action@main
-      #   with:
-      #     code: 'echo "x-cmd: [${-}]"'
