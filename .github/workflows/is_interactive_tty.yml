@@ -9,10 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: main
+      - name: original
         run: |
           if [ "${-#*i}" != "$-" ]; then
-            echo "Interactive"
+            echo "Original Interactive"
           else
-            echo "Not Interactive"
+            echo "Original Not Interactive"
           fi
+      - name: X-CMD
+        uses: x-cmd/action@main
+        with:
+          code: |
+            if [ "${-#*i}" != "$-" ]; then
+              echo "X-CMD Interactive"
+            else
+              echo "X-CMD Not Interactive"
+            fi
