@@ -9,14 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: original
+      - name: main
         run: |
-          echo "original: [${-}]"
-          if [ -t 1 ]; then
-            echo yes
-          else
-            echo no
-          fi
+          echo "1111: [${-}]"
+        with:
+          code: |
+            echo "2222: [${-}]"
+
       # - name: x-cmd
       #   uses: x-cmd/action@main
       #   with:
