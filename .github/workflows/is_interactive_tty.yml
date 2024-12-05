@@ -1,0 +1,18 @@
+name: is-interactive-tty
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 5,23 * * *'
+
+jobs:
+  release-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: main
+        run: |
+          if [ "${-#*i}" != "$-" ]; then
+            echo "Interactive"
+          else
+            echo "Not Interactive"
+          fi
