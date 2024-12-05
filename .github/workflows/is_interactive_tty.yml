@@ -10,8 +10,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: original
-        run: 'echo "original: [${-}]"'
-      - name: x-cmd
-        uses: x-cmd/action@main
-        with:
-          code: 'echo "x-cmd: [${-}]"'
+        run: |
+          echo "original: [${-}]"
+          if [ -t 1 ]; then
+            echo yes
+          else
+            echo no
+          fi
+      # - name: x-cmd
+      #   uses: x-cmd/action@main
+      #   with:
+      #     code: 'echo "x-cmd: [${-}]"'
