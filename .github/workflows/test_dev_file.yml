@@ -12,7 +12,7 @@ jobs:
       - name: main
         # uses: x-cmd/action@main
         run: |
-            if [ -r /dev/tty ]; then
+            if [ -w /dev/tty ]; then
               echo yyy
               command stty size < /dev/tty
             else
