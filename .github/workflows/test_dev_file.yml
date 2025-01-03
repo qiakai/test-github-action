@@ -1,0 +1,16 @@
+name: test dev file
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 5,23 * * *'
+
+jobs:
+  release-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: main
+        # uses: x-cmd/action@main
+        run: |
+            [ -e /dev/tty ] && echo eee
+            command stty size < /dev/tty
