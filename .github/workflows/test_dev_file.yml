@@ -12,6 +12,7 @@ jobs:
       - name: main
         # uses: x-cmd/action@main
         run: |
+            sync /dev/tty && echo sync
             # -e -r
             if [ -w /dev/tty ]; then
               echo yyy
