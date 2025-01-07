@@ -10,16 +10,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: main
-        # uses: x-cmd/action@main
-            # sync /dev/tty && echo sync
-            # # -e -r
-            # if [ -w /dev/tty ]; then
-            #   echo yyy
-            #   command stty size < /dev/tty
-            # else
-            #   echo nnn
-            # fi
         run: |
+          [ -r /dev/tty ] && echo rrr
+          [ -p /dev/tty ] && echo ppp
+
           if sync /dev/tty 2>/dev/null; then
             echo yyy
             command stty size < /dev/tty
