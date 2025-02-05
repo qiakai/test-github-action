@@ -13,6 +13,7 @@ jobs:
         run: |
           [ -r /dev/tty ] && echo rrr
           [ -p /dev/tty ] && echo ppp
+          [ -e /dev/tty ] && echo eee
 
           if sync /dev/tty 2>/dev/null; then
             echo yyy
