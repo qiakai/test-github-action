@@ -19,4 +19,4 @@ jobs:
         uses: x-cmd/action@main
         with:
           code: |
-            ${CMD:-"ip"}
+            sh -c "${CMD:-"ip"}"
