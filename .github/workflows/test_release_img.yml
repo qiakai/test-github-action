@@ -1,0 +1,58 @@
+name: test release-img
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'release version'
+        required: true
+        default: 'v0.10.8'
+
+jobs:
+  release-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AGENT_APIKEY: sk-test-FakeApiKeyForDebug123456
+    steps:
+      - name: main
+        uses: x-cmd/action@main
+        with:
+          code: |
+            version="${{ github.event.inputs.version }}"
+            [ -n "$version" ] || { x:error "Please provide release version"; return 1; }
+            [ -n "$AGENT_APIKEY" ] || { x:error "Please provide agent apikey"; return 1; }
+
+            echo "apikey length: ${#AGENT_APIKEY}"
+            x minimax --cfg apikey="$AGENT_APIKEY" || {
+                x:error "Fail to set agent apikey"
+                return 1
+            }
+            x minimax --cfg cat
+
+            x agent --cfg zero_harness=x-chat || {
+                x:error "Fail to set agent use claude"
+                return 1
+            }
+
+            if x chat --isready; then
+                echo ">> isready = TRUE"
+            else
+                echo ">> isready = FALSE (exit=$?)"
+            fi
+
+            git clone https://codeberg.org/x-cmd/img.git || {
+                x:error "Fail to clone codeberg.org/x-cmd/img repo"
+                return 1
+            }
+
+            [ -d img ] || { x:error "Fail to find x-cmd/img repo"; return 1; }
+            cd img || return 1
+
+            x slash img "https://github.com/x-cmd/x-cmd/releases#release-${version}" || {
+                x:error "Fail to create release img for version=$version"
+                return 1
+            }
+
+            git status || return 1
+            imgfile="assets/x-cmd-${version//./}.en.webp"
+            ls -la "$imgfile"
