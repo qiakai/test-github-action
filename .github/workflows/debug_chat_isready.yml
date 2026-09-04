@@ -1,0 +1,26 @@
+name: debug x chat isready
+on:
+  workflow_dispatch:
+
+jobs:
+  release-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AGENT_APIKEY: sk-test-FakeApiKeyForDebug123456
+    steps:
+      - name: main
+        uses: x-cmd/action@main
+        with:
+          code: |
+            echo "apikey length: ${#AGENT_APIKEY}"
+            x minimax --cfg apikey="$AGENT_APIKEY" || {
+                x:error "Fail to set agent apikey"
+                return 1
+            }
+            x minimax --cfg cat
+            if x chat --isready; then
+                echo ">> isready = TRUE"
+            else
+                echo ">> isready = FALSE (exit=$?)"
+            fi
