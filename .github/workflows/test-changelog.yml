@@ -21,6 +21,9 @@ jobs:
       issues: read
       pull-requests: read
     steps:
+      - name: force https for github git urls
+        run: git config --global url."https://github.com/".insteadOf git@github.com:
+
       - uses: actions/checkout@v4
 
       - uses: x-cmd-action/x-cmd@v1

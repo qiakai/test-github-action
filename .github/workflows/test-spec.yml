@@ -20,6 +20,9 @@ jobs:
       contents: read
       issues: read
     steps:
+      - name: force https for github git urls
+        run: git config --global url."https://github.com/".insteadOf git@github.com:
+
       - uses: x-cmd-action/x-cmd@v1
         with:
           stream: x7
