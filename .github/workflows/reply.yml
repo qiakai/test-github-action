@@ -1,7 +1,7 @@
 name: reply
 
 # Test x-cmd-action-ai/reply: react + reply when @x is mentioned.
-# Requires MINIMAX_TOKEN repo secret for the AI reply (use_ai: true).
+# Requires MINIMAX_API_KEY repo secret for the AI reply (use_ai: true).
 
 on:
   issue_comment:
