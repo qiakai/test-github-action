@@ -1,0 +1,33 @@
+name: test-review
+
+# Test qiakai/x-cmd-action-ai/review: review a PR diff, post a review
+# comment. Trigger: open/update a PR in this repo.
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    if: github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      # x ai review '-' (stdin diff) is unreleased — patch from main.
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      - uses: qiakai/x-cmd-action-ai/review@main
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}

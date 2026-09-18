@@ -1,0 +1,51 @@
+name: test-commit
+
+# Test qiakai/x-cmd-action-ai/commit: Conventional Commits check
+# (mode=check) or full message generation (mode=generate) via `x ai commit`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check | generate'
+        default: 'check'
+      fail_on_invalid:
+        description: 'check mode: fail the workflow on invalid commits'
+        default: 'false'
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      # x ai commit --full is unreleased — patch from main.
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      # generate mode needs staged changes — make some.
+      - name: stage a change (generate mode)
+        if: github.event.inputs.mode == 'generate'
+        run: |
+          echo "test: $(date)" >> .ai-commit-test
+          git add .ai-commit-test
+
+      - uses: qiakai/x-cmd-action-ai/commit@main
+        with:
+          mode: ${{ github.event.inputs.mode }}
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          INPUT_FAIL_ON_INVALID: ${{ github.event.inputs.fail_on_invalid }}

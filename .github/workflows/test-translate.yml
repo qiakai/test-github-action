@@ -1,0 +1,55 @@
+name: test-translate
+
+# Test qiakai/x-cmd-action-ai/translate: translate a repo file via
+# `x ai translate`. The translated file is printed to the step log.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source file path (relative to repo root)'
+        default: 'README.md'
+      target:
+        description: 'Target language code'
+        default: 'zh'
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      - name: compute output path
+        id: out
+        env:
+          SRC: ${{ github.event.inputs.source }}
+          LANG: ${{ github.event.inputs.target }}
+        run: |
+          ext="${SRC##*.}"; stem="${SRC%.*}"; dir="$(dirname "$SRC")"
+          echo "path=$dir/$stem.$LANG.$ext" >> "$GITHUB_OUTPUT"
+
+      - uses: qiakai/x-cmd-action-ai/translate@main
+        with:
+          source: ${{ github.event.inputs.source }}
+          target: ${{ github.event.inputs.target }}
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+
+      - name: show translated file
+        run: |
+          echo "===== ${{ steps.out.outputs.path }} ====="
+          cat "${{ steps.out.outputs.path }}"

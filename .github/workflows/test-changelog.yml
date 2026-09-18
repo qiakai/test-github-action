@@ -1,0 +1,44 @@
+name: test-changelog
+
+# Test qiakai/x-cmd-action-ai/changelog: summarize recent closed issues
+# + merged PRs via `x ai changelog`. Output goes to the step log.
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Look-back window in days'
+        default: '30'
+      output:
+        description: 'comment (stdout) | file'
+        default: 'comment'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      # x ai changelog's generalized prompt is unreleased — patch from main.
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      - uses: qiakai/x-cmd-action-ai/changelog@main
+        with:
+          days: ${{ github.event.inputs.days }}
+          output: ${{ github.event.inputs.output }}
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}

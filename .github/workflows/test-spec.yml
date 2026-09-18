@@ -1,0 +1,41 @@
+name: test-spec
+
+# Test qiakai/x-cmd-action-ai/spec: turn an issue (+ comments) into an
+# RFC or post-mortem via `x ai spec --mode ... -`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to use as source material'
+        required: true
+      mode:
+        description: 'rfc | postmortem'
+        default: 'rfc'
+
+jobs:
+  spec:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      # x ai spec --mode is unreleased — patch from main.
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      - uses: qiakai/x-cmd-action-ai/spec@main
+        with:
+          mode: ${{ github.event.inputs.mode }}
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          ISSUE_NUM: ${{ github.event.inputs.issue_number }}

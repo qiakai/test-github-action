@@ -1,0 +1,46 @@
+name: test-triage
+
+# Test qiakai/x-cmd-action-ai/triage: classify an issue, post summary,
+# apply labels. Trigger: create an issue in this repo, or dispatch with
+# an existing issue number.
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to triage'
+        required: true
+
+jobs:
+  triage:
+    if: github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      # Pre-install x-cmd and patch the ai module from x-bash/ai@main
+      # (the action's own install step then skips). Remove once released.
+      - uses: x-cmd-action/x-cmd@v1
+        with:
+          stream: x7
+
+      - name: patch x ai module from x-bash/ai@main
+        run: |
+          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
+            for f in review spec changelog commit; do
+              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
+            done
+          done
+
+      - uses: qiakai/x-cmd-action-ai/triage@main
+        with:
+          apply-labels: 'true'
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          # workflow_dispatch has no issue context — feed it manually
+          ISSUE_NUM: ${{ github.event.inputs.issue_number || github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
