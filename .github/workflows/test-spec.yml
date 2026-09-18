@@ -21,7 +21,7 @@ jobs:
       issues: read
     steps:
       - name: force https for github git urls
-        run: git config --global url."https://github.com/".insteadOf git@github.com:
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
 
       - uses: x-cmd-action/x-cmd@v1
         with:

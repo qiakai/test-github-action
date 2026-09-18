@@ -22,7 +22,7 @@ jobs:
       issues: write
     steps:
       - name: force https for github git urls
-        run: git config --global url."https://github.com/".insteadOf git@github.com:
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
 
       # Pre-install x-cmd and patch the ai module from x-bash/ai@main
       # (the action's own install step then skips). Remove once released.

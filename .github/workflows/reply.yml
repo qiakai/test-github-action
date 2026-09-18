@@ -23,7 +23,7 @@ jobs:
       issues: write
     steps:
       - name: force https for github git urls
-        run: git config --global url."https://github.com/".insteadOf git@github.com:
+        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
 
       - uses: qiakai/x-cmd-action-ai/reply@main
         with:
