@@ -30,4 +30,4 @@ jobs:
           use_ai: 'true'
         env:
           # x-cmd's minimax module reads MINIMAX_API_KEY as the env fallback.
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_TOKEN }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
