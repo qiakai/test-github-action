@@ -29,4 +29,5 @@ jobs:
           comment: '👀 on it'
           use_ai: 'true'
         env:
-          MINIMAX_TOKEN: ${{ secrets.MINIMAX_TOKEN }}
+          # x-cmd's minimax module reads MINIMAX_API_KEY as the env fallback.
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_TOKEN }}
