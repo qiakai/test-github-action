@@ -15,8 +15,16 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: force https for github git urls
-        run: 'git config --global url."https://github.com/".insteadOf git@github.com:'
+      - name: force https (+ auth) for github git urls
+        # x-cmd/x7 is private: inject a PAT with read access when available.
+        env:
+          GH_PAT_X7: ${{ secrets.GH_PAT_X7 }}
+        run: |
+          if [ -n "$GH_PAT_X7" ]; then
+            git config --global "url.https://x-access-token:${GH_PAT_X7}@github.com/.insteadOf" "git@github.com:"
+          else
+            git config --global url."https://github.com/".insteadOf git@github.com:
+          fi
 
       - uses: x-cmd-action/x-cmd@v1
         with:
