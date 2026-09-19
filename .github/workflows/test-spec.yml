@@ -24,6 +24,6 @@ jobs:
       - uses: qiakai/x-cmd-action-ai/spec@main
         with:
           mode: ${{ github.event.inputs.mode }}
+          issue-number: ${{ github.event.inputs.issue_number }}
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          ISSUE_NUM: ${{ github.event.inputs.issue_number }}

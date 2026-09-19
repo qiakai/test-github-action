@@ -25,9 +25,6 @@ jobs:
       - uses: qiakai/x-cmd-action-ai/triage@main
         with:
           apply-labels: 'true'
+          issue-number: ${{ github.event.inputs.issue_number }}
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          # workflow_dispatch has no issue context — feed it manually
-          ISSUE_NUM: ${{ github.event.inputs.issue_number || github.event.issue.number }}
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
