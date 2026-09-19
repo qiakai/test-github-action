@@ -17,46 +17,40 @@ jobs:
   commit:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
-      - name: force https (+ auth) for github git urls
-        # x-cmd/x7 is private: inject a PAT with read access when available.
-        env:
-          GH_PAT_X7: ${{ secrets.GH_PAT_X7 }}
-        run: |
-          if [ -n "$GH_PAT_X7" ]; then
-            git config --global "url.https://x-access-token:${GH_PAT_X7}@github.com/.insteadOf" "git@github.com:"
-          else
-            git config --global url."https://github.com/".insteadOf git@github.com:
-          fi
 
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: x-cmd-action/x-cmd@v1
-        with:
-          stream: x7
-
-      # x ai commit --full is unreleased — patch from main.
-      - name: patch x ai module from x-bash/ai@main
-        run: |
-          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
-            for f in review spec changelog commit; do
-              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
-            done
-          done
-
-      # generate mode needs staged changes — make some.
-      - name: stage a change (generate mode)
+      # generate mode needs changes — make some. The new file is left
+      # UNSTAGED on purpose: the action's stage_all should pick it up.
+      - name: make a change (generate mode)
         if: github.event.inputs.mode == 'generate'
         run: |
           echo "test: $(date)" >> .ai-commit-test
-          git add .ai-commit-test
+          echo "new file: $(date)" > .ai-commit-test-new
 
       - uses: qiakai/x-cmd-action-ai/commit@main
+        id: ai-commit
         with:
           mode: ${{ github.event.inputs.mode }}
+          fail_on_invalid: ${{ github.event.inputs.fail_on_invalid }}
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          INPUT_FAIL_ON_INVALID: ${{ github.event.inputs.fail_on_invalid }}
+
+      - name: show generated message
+        if: github.event.inputs.mode == 'generate'
+        run: |
+          echo "--- commit_message output ---"
+          printf '%s\n' "${{ steps.ai-commit.outputs.commit_message }}"
+          echo "--- end ---"
+
+      - name: commit & push (generate mode)
+        if: github.event.inputs.mode == 'generate' && steps.ai-commit.outputs.commit_message != ''
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "${{ steps.ai-commit.outputs.commit_message }}"
+          git push

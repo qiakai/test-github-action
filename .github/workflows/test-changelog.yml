@@ -21,31 +21,8 @@ jobs:
       issues: read
       pull-requests: read
     steps:
-      - name: force https (+ auth) for github git urls
-        # x-cmd/x7 is private: inject a PAT with read access when available.
-        env:
-          GH_PAT_X7: ${{ secrets.GH_PAT_X7 }}
-        run: |
-          if [ -n "$GH_PAT_X7" ]; then
-            git config --global "url.https://x-access-token:${GH_PAT_X7}@github.com/.insteadOf" "git@github.com:"
-          else
-            git config --global url."https://github.com/".insteadOf git@github.com:
-          fi
 
       - uses: actions/checkout@v4
-
-      - uses: x-cmd-action/x-cmd@v1
-        with:
-          stream: x7
-
-      # x ai changelog's generalized prompt is unreleased — patch from main.
-      - name: patch x ai module from x-bash/ai@main
-        run: |
-          for lib in "$HOME/.x-cmd.root"/v/*/mod/ai/lib; do
-            for f in review spec changelog commit; do
-              curl -fsSL "https://raw.githubusercontent.com/x-bash/ai/main/lib/$f" > "$lib/$f"
-            done
-          done
 
       - uses: qiakai/x-cmd-action-ai/changelog@main
         with:
