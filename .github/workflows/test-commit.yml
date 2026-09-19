@@ -53,4 +53,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "${{ steps.ai-commit.outputs.commit_message }}"
-          git push
+          # checkout leaves a detached HEAD — push it onto main explicitly
+          git push origin HEAD:main
