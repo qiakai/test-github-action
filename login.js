@@ -7,3 +7,4 @@ function login(username, password) {
   return null;
 }
 module.exports = { login };
+// retry logic added
