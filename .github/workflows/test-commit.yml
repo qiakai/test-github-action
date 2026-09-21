@@ -12,6 +12,12 @@ on:
       fail_on_invalid:
         description: 'check mode: fail the workflow on invalid commits'
         default: 'false'
+      review_invalid:
+        description: 'check mode: post AI review of invalid commits (needs pr_num for comment; falls back to job summary)'
+        default: 'false'
+      pr_num:
+        description: 'check mode: PR number to post the review comment to'
+        default: ''
 
 jobs:
   commit:
@@ -37,6 +43,8 @@ jobs:
         with:
           mode: ${{ github.event.inputs.mode }}
           fail_on_invalid: ${{ github.event.inputs.fail_on_invalid }}
+          review_invalid: ${{ github.event.inputs.review_invalid }}
+          pr_num: ${{ github.event.inputs.pr_num }}
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 
