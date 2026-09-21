@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: read
+      issues: write
     steps:
 
       - uses: qiakai/x-cmd-action-ai/spec@main
