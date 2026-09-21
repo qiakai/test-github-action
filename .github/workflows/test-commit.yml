@@ -18,6 +18,9 @@ on:
       pr_num:
         description: 'check mode: PR number to post the review comment to'
         default: ''
+      ref:
+        description: 'branch/ref to check out (default: repository default branch)'
+        default: ''
 
 jobs:
   commit:
@@ -29,6 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.ref }}
 
       # generate mode needs changes — make some. The new file is left
       # UNSTAGED on purpose: the action's stage_all should pick it up.
