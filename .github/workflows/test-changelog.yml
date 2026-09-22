@@ -1,7 +1,8 @@
 name: test-changelog
 
 # Test qiakai/x-cmd-action-ai/changelog: summarize recent closed issues
-# + merged PRs via `x ai changelog`. Output goes to the step log.
+# + merged PRs via `x ai changelog`. Result is committed to the
+# test-output branch so it can be reviewed without digging through logs.
 
 on:
   workflow_dispatch:
@@ -9,15 +10,15 @@ on:
       days:
         description: 'Look-back window in days'
         default: '30'
-      output:
-        description: 'comment (stdout) | file'
-        default: 'comment'
+      file:
+        description: 'Output file path (on test-output branch)'
+        default: 'CHANGELOG.md'
 
 jobs:
   changelog:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: read
       pull-requests: read
     steps:
@@ -27,6 +28,18 @@ jobs:
       - uses: qiakai/x-cmd-action-ai/changelog@main
         with:
           days: ${{ github.event.inputs.days }}
-          output: ${{ github.event.inputs.output }}
+          output: file
+          file: ${{ github.event.inputs.file }}
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+
+      - name: publish result to test-output branch
+        env:
+          OUT_FILE: ${{ github.event.inputs.file }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin test-output 2>/dev/null && git checkout -B test-output origin/test-output || git checkout -B test-output
+          git add "$OUT_FILE"
+          git commit -m "test-changelog: AI changelog ($OUT_FILE)" || echo "no changes to commit"
+          git push -f origin test-output

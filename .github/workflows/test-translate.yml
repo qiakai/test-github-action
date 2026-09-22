@@ -42,3 +42,14 @@ jobs:
         run: |
           echo "===== ${{ steps.out.outputs.path }} ====="
           cat "${{ steps.out.outputs.path }}"
+
+      - name: publish result to test-output branch
+        env:
+          OUT_FILE: ${{ steps.out.outputs.path }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin test-output 2>/dev/null && git checkout -B test-output origin/test-output || git checkout -B test-output
+          git add "$OUT_FILE"
+          git commit -m "test-translate: AI translation ($OUT_FILE)" || echo "no changes to commit"
+          git push -f origin test-output
